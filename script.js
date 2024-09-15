@@ -10,10 +10,14 @@ const count = 10;
 const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${count}`;
 
 let resultsArray = [];
+let favorites = {};
 
-// updateDOM()
-function updateDOM() {
-  resultsArray.forEach((result) => {
+// crate DOM Nodes
+function createDOMNodes(page) {
+  const currentArray =
+    page === "results" ? resultsArray : Object.values(favorites);
+
+  currentArray.forEach((result) => {
     // card
     const card = document.createElement("div");
     card.classList.add("card");
@@ -39,6 +43,7 @@ function updateDOM() {
     const saveText = document.createElement("p");
     saveText.classList.add("clickable");
     saveText.textContent = "Add To Favorites";
+    saveText.setAttribute("onclick", `saveFavorite('${result.url}')`);
     // card text
     const cardText = document.createElement("p");
     cardText.textContent = result.explanation;
@@ -62,15 +67,43 @@ function updateDOM() {
   });
 }
 
+// updateDOM()
+function updateDOM(page) {
+  // get favorites from localStorage
+  if (localStorage.getItem("nasaFavorites")) {
+    favorites = JSON.parse(localStorage.getItem("nasaFavorites"));
+    console.log("fav for local", favorites);
+  }
+
+  createDOMNodes(page);
+}
+
 // get 10 images from NASA API
 async function getNasaPictures() {
   try {
     const response = await fetch(apiUrl);
     resultsArray = await response.json();
-    updateDOM();
+    updateDOM("favorites");
   } catch (error) {
     console.log("error fetching NASA pictures", error);
   }
+}
+
+// add result to favorites
+function saveFavorite(itemUrl) {
+  // loop through results array to select favorite
+  resultsArray.forEach((item) => {
+    if (item.url.includes(itemUrl) && !favorites[itemUrl]) {
+      favorites[itemUrl] = item;
+      // show save confirmation for 2 seconds
+      saveConfirmed.hidden = false;
+      setTimeout(() => {
+        saveConfirmed.hidden = true;
+      }, 2000);
+      // set favorites in localStorage
+      localStorage.setItem("nasaFavorites", JSON.stringify(favorites));
+    }
+  });
 }
 
 // on load
