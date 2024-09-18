@@ -1,8 +1,9 @@
 const resultsNav = document.getElementById("resultsNav");
-const favoritesNav = document.getElementById("favoritesNav");
+const favoritesNav = document.getElementById("favorites");
 const imagesContainer = document.querySelector(".images-container");
 const saveConfirmed = document.querySelector(".save-confirmed");
 const loader = document.querySelector(".loader");
+const loadMoreNav = document.getElementById("loadMore");
 
 // NASA API
 const apiKey = "DEMO_KEY";
@@ -74,7 +75,7 @@ function updateDOM(page) {
     favorites = JSON.parse(localStorage.getItem("nasaFavorites"));
     console.log("fav for local", favorites);
   }
-
+  // TODO: update this function to display the saved items
   createDOMNodes(page);
 }
 
@@ -108,3 +109,8 @@ function saveFavorite(itemUrl) {
 
 // on load
 getNasaPictures();
+
+// event listeners
+favoritesNav.addEventListener("click", () => {
+  updateDOM("favorites");
+});
